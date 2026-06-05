@@ -78,6 +78,7 @@ public class JavaConventions {
 		project.getPlugins().withType(JavaLibraryPlugin.class, (javaPlugin) -> {
 			applyToolchainConventions(project);
 			applyJavaCompileConventions(project);
+			configureReleaseTrainRepository(project);
 		});
 	}
 
@@ -132,6 +133,19 @@ public class JavaConventions {
 			}
 		}
 		task.getOptions().getRelease().set(releaseVersion);
+	}
+
+	private void configureReleaseTrainRepository(Project project) {
+		if (System.getenv().containsKey("RELEASE_TRAIN_MAVEN_REPOSITORY_URL")) {
+			project.getRepositories().maven(repository -> {
+				repository.setName("Release Train");
+				repository.setUrl(System.getenv("RELEASE_TRAIN_MAVEN_REPOSITORY_URL"));
+				repository.credentials((creds) -> {
+					creds.setUsername(System.getenv("RELEASE_TRAIN_MAVEN_REPOSITORY_USERNAME"));
+					creds.setPassword(System.getenv("RELEASE_TRAIN_MAVEN_REPOSITORY_PASSWORD"));
+				});
+			});	
+		}
 	}
 
 }
